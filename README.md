@@ -17,6 +17,31 @@ my $omega_api_client = new OmegaTV({
 async(sub { await $omega_api_client->get_tariff_base() })->()->wait;
 ```
 
+#### Using with Mojolicious
+
+```Perl
+helper omega => sub {
+  return $omega_api_client;
+};
+
+get '/client/:id/service' => async sub {
+  my $c  = shift;
+  my $id = $c->param('id');
+
+  my $response = await $c->omega->get_customer($uid);
+
+  if ($response->{error}) {
+    return $c->render(
+      format => 'error',
+      status => 500,
+      text   => Mojo::JSON::to_json($response->{error})
+    );
+  }
+
+  $c->render(status => 200, json => $response->{data});
+};
+```
+
 # Methods
 
 #### get_tariff_base
